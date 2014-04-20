@@ -102,9 +102,24 @@ class Theme
     end
   end
   
+  def uuid_string
+    begin
+      return SecureRandom.uuid
+    rescue NoMethodError
+      begin
+        require "rubygems"
+        require "uuidtools"
+      rescue LoadError
+        raise StandardError, "Can't generate UUID; missing both uuidtools \
+module and SecureRandom#uuid. We need one of them!"
+      end
+      return UUIDTools::UUID.random_create.to_s
+    end
+  end
+
   def parse_template_file(template_file)
     # Define ERB vars
-    @uuid = SecureRandom.uuid
+    @uuid = uuid_string
     
     template_contents = read_template_file(template_file)
     parsed = ERB.new(template_contents)
